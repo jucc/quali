@@ -176,17 +176,68 @@
         \subsection{Análise exploratória}
             
             \paragraph{} Antes de iniciar a classificação, uma análise exploratória nos permite avaliar a viabilidade da ideia, assim como detectar potenciais problemas ou erros nos dados. 
+            \paragraph{}As figuras ~\ref{sess_box_ronald} e ~\ref{sess_box_all} mostram como se comportam a distribuição de algumas métricas selecionadas através de todas as sessões gravadas. Na figura ~\ref{sess_box_ronald}, foi selecionado um indivíduo para demonstrar como as métricas variam entre atividades. É possível observar que atividades como exercício e sono se destacam bastante das outras, uma indicação de que são atividades facilmente identificáveis. Já a figura ~\ref{sess_box_ronald} representa uma agregação de todas as atividades, com exceção dessas três, por indivíduo, ressaltando que, apesar de haver semelhança, há um padrão levemente distinto para cada um deles, o que indica que uma classificação intra-usuário deva funcionar melhor do que uma inter-usuário. Apesar das figuras representarem apenas um subconjunto das métricas, as outras se comportam de maneira parecida.
+      
+      
+            \begin{figure}[h!]
+                \centering
+                \subfigure{
+                    \label{sb1a}                    
+                    \includegraphics[width=0.75\textwidth]{sessions/sess_box_mrri_ronald.png}}
+                \subfigure{
+                    \label{sb1b}                    
+                    \includegraphics[width=0.75\textwidth]{sessions/sess_box_rmssd_ronald.png}}
+                \caption{Distribuição da média dos intervalos e da média RMS da diferença entre intervalos consecutivos por sessão, para cada atividade. Apenas um indivíduo está representado.}
+                \label{sess_box_ronald}
+            \end{figure}
 
-        \subsection{Feature engineering}
+            \begin{figure}[h!]
+                \centering
+                \subfigure{
+                    \label{sb2a}                    
+                    \includegraphics[width=0.75\textwidth]{sessions/sess_box_mrri_all.png}}
+                \subfigure{
+                    \label{sb2b}                    
+                    \includegraphics[width=0.75\textwidth]{sessions/sess_box_rmssd_all.png}}
+                \caption{Distribuição da média dos intervalos e da média RMS da diferença entre intervalos consecutivos por sessão, para cada indivíduo. Foram agrupadas as sessões das diversas atividades, excluindo exercício, sono e movimento}
+                \label{sess_box_all}
+            \end{figure}
 
-            \paragraph{} No intuito de definir a configuração ótima deses parâmetros, executamos o pipeline repetidamente, variando os valores desses dois parâmetros gernado um \textit{dataset} para cada par de parâmetros. Os valores testados foram (em segundos): 30, 60, 90 para o \textit{crop} e 60, 120, 180, 240, 300, 420, 600 para a duração.
-            
-            \subsubsection{Controle de ruído vs overfitting}
-            
-            \subsubsection{Controle de outliers}
-    
-        \subsection{SVM x Random Forest}
+        \subsection{Preparação do dado}
         
+            \paragraph{} No intuito de definir a configuração ótima dos parâmetros de duração do fragmento e \textit{crop} inicial, executamos o pipeline repetidamente, variando os valores desses dois parâmetros gerando um \textit{dataset} para cada par de parâmetros. Os valores testados foram (em segundos): 30, 60, 90 para o \textit{crop} e 60, 120, 180, 240, 300, 420, 600 para a duração.
+        
+            \paragraph{} Apesar do já termos executado a maior parte do tratamento necessário ao dado no pipeline de processamento, ainda foi necessária a normalização dos valores de cada \textit{feature}, realizada somente na fase do classificador. Para isso, cada \textit{dataset} é separado por indivíduo e, para cada um, é aplicada uma função que transforma cada uma das métricas em uma distribuição com média 0 e desvio-padrão 1. Isso impede que os classificadores atribuam um peso desproporcionalmente alto para \textit{features} que tenham alta variância.
+            
+            \paragraph{} Por fim, os datasets resultantes foram divididos em exemplos para treino e teste em uma proporção de 4:1. 
+
+        \subsection{Seleção de modelo}
+        
+            \paragraph{} Para a classificação, foram testados os algoritmos SVM com kernel linear e com kernel radial (RBF), e \textit{Random Forest}, por possuírem características desejáveis para o modelo propposto. O SVM, com o uso de kernels, permite trabalhar com dados de alta dimensionalidade e foi o primeiro algoritmo testado. No entanto, ele apresentou resultados abaixo do esperado, possivelmente por causa da grande variedade de classes testadas, quando a principal vantagem desse método é a separação binária. Por outro lado, o algoritmo \textit{Random Forest} é um método do tipo \textit{ensemble}, construído pela combinação de diversas classificações base independentes. Para cada métrica testada (\textit{feature}), o conjunto de treino é amostrado com reposição, o que reforça essa independência, sendo uma vantagem para as múltiplas classes. As implementações usadas para ambos os algoritmos foram do pacote \textit{scikit-learn} ~\cite{scikit}.
+            
+            \paragraph{} Os algoritmos foram executados usando \textit{cross-validation}, em que o \textit{dataset} de treino é repetidamente dividido em uma proporção 4:1, em \textit{datasets} de treino e validação e o modelo resultante é o que tem melhor desempenho médio em todas as iterações de validação. 
+            
+            \paragraph{} Ainda para a seleção de modelo, fizemos uma avaliação do SVM em \textit{grid-search}, ou seja, variando seus parâmetros para verificar qual configuração oferece o melhor resultado. Para o kernel linear, o valor do parâmetro C, que reflete a necessidade regularização dos dados, deixando-os menos suscetíveis a ruídos, foi testado em um espaço de busca logarítmico de $10^{-3}$ até $10^{3}$. Para o kernel RBF, além desse mesmo parâmetro, o valor de $\gamma$, que reflete o raio de influência de um exemplo, foi testado no mesmo espaço de busca.
+            
+            \paragraph{} Nessa etapa de seleção de modelo, apresentamos o resultado apenas de um dataset, com fragmentos de comprimento 300s e \textit{crop} de 90s. Os resultados para outros parâemtros de fragmentação foram semelhantes. A tabela mostra, para cada classe, a comparação do resultado da melhor parametrização do algoritmo SVM contra o algoritmo \textit{Random Forest}
+            
+            
+  To evaluate the performance of our classifier, we used the f1-score metrics, defined as follows.
+  For each activity:
+\begin{itemize}
+	\item \textbf{tp} is the number of true positives (examples correctly identified as belonging to this activity);
+	\item \textbf{fn} is the number of false negatives (samples that belong to this activity but were incorrectly classified in another class;
+	\item \textbf{fp} is the number of false positives (samples that do not belong to this activity but were incorrectly classified in it)
+	\item \textbf{Recall} is defined as $\frac{tp}{tp + fn}$, or the ability of the classifier to identify positive samples for a class.
+	\item \textbf{Precision} is defined as $\frac{tp}{tp + fp}$,  or the ability of the classifier not to add to a class a sample that does not belong to it.
+	\item \textbf{F1 score} can be interpreted as a weighted average of the precision and recall, with equal relative contribution. The formula for the F1 score is:  
+      \begin{equation}
+      2 * \frac{precision \cdot recall}{precision + recall}
+      \end{equation}
+\end{itemize}
+
+            
+            
         \subsection{Hierarquia}
         
         
