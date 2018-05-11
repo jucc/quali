@@ -210,34 +210,33 @@
             \paragraph{} Apesar do já termos executado a maior parte do tratamento necessário ao dado no pipeline de processamento, ainda foi necessária a normalização dos valores de cada \textit{feature}, realizada somente na fase do classificador. Para isso, cada \textit{dataset} é separado por indivíduo e, para cada um, é aplicada uma função que transforma cada uma das métricas em uma distribuição com média 0 e desvio-padrão 1. Isso impede que os classificadores atribuam um peso desproporcionalmente alto para \textit{features} que tenham alta variância.
             
             \paragraph{} Por fim, os datasets resultantes foram divididos em exemplos para treino e teste em uma proporção de 4:1. 
+            
+        \subsection{Métricas de avaliação da classificação}
+            \paragraph{} Para avaliar o desempenho dos classificadores, usamos a métrica chamada de \textit{f1-score}, definida da seguinte forma:
+            
+            \paragraph{} Para cada classe resultante, sejam:
+                \begin{itemize}
+	                \item \textbf{tp} o número de verdadeiros positivos (exemplos corretamente identificados nessa classe);
+	                \item \textbf{tn} o número de verdadeiros negativos (exemplos corretamente identificados como não pertencendo a essa classe);
+	                \item \textbf{fn} o número de falsos negativos (exemplos que pertencem a essa classe, mas foram incorretamente classificados em outra);
+	                \item \textbf{fp} o número de falsos positivos (exemplos que não pertecnem a essa classe, mas foram incorretamente classificados nela);
+	                \item \textbf{Precisão} é a métrica definida como $\frac{tp}{tp + fp}$, representando a segurança em afirmar que um exemplo classificado realmente pertence a essa classe, ou seja, a habilidade de minimizar falsos positivos;
+	                \item \textbf{Recall} é uma métrica definida como $\frac{tp}{tp + fn}$, representando a habilidade do classificador encontrar a maioria dos exemplos positivos, minimizando falsos negativos;
+	                \item \textbf{F1-score}, por fim, é uma média ponderada da precisão e recall. É possível atribuir pesos diferentes para valorizar mais uma ou outra métrica, entretanto, nesse trabalho, vamos considerar seus pesos iguais. Logo, o f1-score pode ser escrito como $2 * \frac{precisao \cdot recall}{precisao + recall} $
+                \end{itemize}
+                
+                \paragraph{} Nos resultados a seguir, a não ser que seja explicitamente definido de outra forma, estamos usando o f1-score para representar o desempenho das classificações.
 
         \subsection{Seleção de modelo}
         
             \paragraph{} Para a classificação, foram testados os algoritmos SVM com kernel linear e com kernel radial (RBF), e \textit{Random Forest}, por possuírem características desejáveis para o modelo propposto. O SVM, com o uso de kernels, permite trabalhar com dados de alta dimensionalidade e foi o primeiro algoritmo testado. No entanto, ele apresentou resultados abaixo do esperado, possivelmente por causa da grande variedade de classes testadas, quando a principal vantagem desse método é a separação binária. Por outro lado, o algoritmo \textit{Random Forest} é um método do tipo \textit{ensemble}, construído pela combinação de diversas classificações base independentes. Para cada métrica testada (\textit{feature}), o conjunto de treino é amostrado com reposição, o que reforça essa independência, sendo uma vantagem para as múltiplas classes. As implementações usadas para ambos os algoritmos foram do pacote \textit{scikit-learn} ~\cite{scikit}.
             
-            \paragraph{} Os algoritmos foram executados usando \textit{cross-validation}, em que o \textit{dataset} de treino é repetidamente dividido em uma proporção 4:1, em \textit{datasets} de treino e validação e o modelo resultante é o que tem melhor desempenho médio em todas as iterações de validação. 
+            \paragraph{} Os algoritmos foram executados usando \textit{5-fold cross-validation}, uma espécie de \textit{bootstrap} em que o \textit{dataset} de treino é dividido em 5 e, cada um dos sub-datasets resultantes é usado como validação uma vez, enquanto os outros quatro são usados para treino. Isso permite realizar a validação, mesmo com todos os exemplos sendo usados para treino. 
             
-            \paragraph{} Ainda para a seleção de modelo, fizemos uma avaliação do SVM em \textit{grid-search}, ou seja, variando seus parâmetros para verificar qual configuração oferece o melhor resultado. Para o kernel linear, o valor do parâmetro C, que reflete a necessidade regularização dos dados, deixando-os menos suscetíveis a ruídos, foi testado em um espaço de busca logarítmico de $10^{-3}$ até $10^{3}$. Para o kernel RBF, além desse mesmo parâmetro, o valor de $\gamma$, que reflete o raio de influência de um exemplo, foi testado no mesmo espaço de busca.
+            \paragraph{} Para a seleção de modelo, fizemos uma avaliação do SVM em \textit{grid-search}, ou seja, variando seus parâmetros para verificar qual configuração oferece o melhor resultado. Para o kernel linear, o valor do parâmetro C, que reflete a regularização dos dados, deixando-os menos suscetíveis a ruídos, foi testado em um espaço de busca logarítmico de $10^{-3}$ até $10^{3}$. Para o kernel RBF, além desse mesmo parâmetro, o valor de $\gamma$, que reflete o raio de influência de um exemplo, foi testado no mesmo espaço de busca.
             
-            \paragraph{} Nessa etapa de seleção de modelo, apresentamos o resultado apenas de um dataset, com fragmentos de comprimento 300s e \textit{crop} de 90s. Os resultados para outros parâemtros de fragmentação foram semelhantes. A tabela mostra, para cada classe, a comparação do resultado da melhor parametrização do algoritmo SVM contra o algoritmo \textit{Random Forest}
-            
-            
-  To evaluate the performance of our classifier, we used the f1-score metrics, defined as follows.
-  For each activity:
-\begin{itemize}
-	\item \textbf{tp} is the number of true positives (examples correctly identified as belonging to this activity);
-	\item \textbf{fn} is the number of false negatives (samples that belong to this activity but were incorrectly classified in another class;
-	\item \textbf{fp} is the number of false positives (samples that do not belong to this activity but were incorrectly classified in it)
-	\item \textbf{Recall} is defined as $\frac{tp}{tp + fn}$, or the ability of the classifier to identify positive samples for a class.
-	\item \textbf{Precision} is defined as $\frac{tp}{tp + fp}$,  or the ability of the classifier not to add to a class a sample that does not belong to it.
-	\item \textbf{F1 score} can be interpreted as a weighted average of the precision and recall, with equal relative contribution. The formula for the F1 score is:  
-      \begin{equation}
-      2 * \frac{precision \cdot recall}{precision + recall}
-      \end{equation}
-\end{itemize}
+            \paragraph{} Nessa etapa de seleção de modelo, apresentamos o resultado apenas de um dataset, com fragmentos de comprimento 300s e \textit{crop} de 90s. Os resultados para outras configurações de fragmentação foram semelhantes. A tabela mostra, para cada classe, a comparação do resultado da melhor parametrização do SVM contra o \textit{Random Forest}. É possível observar que o \textit{ Random Forest} apresentou performance melhor que o SVM para todas as classes e, por isso, será utilizado nas próximas análises. 
 
-            
-            
         \subsection{Hierarquia}
         
         
