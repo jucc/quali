@@ -121,7 +121,7 @@
             
             \paragraph{} O pipeline implementado permite a configuração da duração de cada fragmento. Além disso, é possível também configurar um período chamado de \textit{crop}, que é removido do início de cada sessão e não entra nos fragmentos, para suprimir o possível ruído causado pela adaptação da frequência cardíaca do indivíduo ao início da nova tarefa, também seguindo recomendações de análise \cite{Quintana2016GuidelinesCommunication}. 
             
-            \paragraph{} Com esses dos parâmetros, são determinados o tempo de início e fim de cada fragmento dentro de uma sessão. Assim como na geração da sessão, os intervalos contidos em cada fragmento são determinados através da comparação de seu \textit{timestamp} com os horários de início e fim determinados para o fragmento.
+            \paragraph{} Com esses dois parâmetros, são determinados o tempo de início e fim de cada fragmento dentro de uma sessão. Assim como na geração da sessão, os intervalos contidos em cada fragmento são determinados através da comparação de seu \textit{timestamp} com os horários de início e fim determinados para o fragmento.
             
         \subsection{Hierarquização de categorias}
         
@@ -131,7 +131,7 @@
             
         \subsection{Cálculo das métricas agregadas}
         
-            \paragraph{}A seguir, são calculadas as métricas agregadas da distribuição dos intervalos, conforme descritas na seção ~\ref{HRV}. Calculamos essas métricas para a distribuição dos intervalos tanto das sessões como dos fragmentos. Apesar de apenas os fragmentos serem utilizados nos classificadores, as métricas das sessões são úteis para análises de dados exploratórias, visualização e comparação das sessões por tipo de atividade. As métricas utilizadas são descritas na tabela ~\ref{feats}.
+            \paragraph{}A seguir, são calculadas as métricas agregadas da distribuição dos intervalos, conforme descritas na seção ~\ref{HRV}. Calculamos essas métricas para a distribuição dos intervalos tanto das sessões como dos fragmentos. Apesar de apenas os fragmentos serem utilizados nos classificadores, as métricas das sessões são úteis para análises de dados exploratórias, visualização e comparação das sessões por tipo de atividade. As métricas do domínimo da frequência são calculadas com auxílio da biblioteca hrv disponível para Python (https://github.com/rhenanbartels/hrv). As métricas utilizadas são descritas na tabela ~\ref{feats}.
   
             \begin{table}[h!]
                 \centering
@@ -150,9 +150,9 @@
             
             \paragraph{}Apesar de armazenados, valores como MHR (média de frequência cardíaca) e NN50 (número absoluto de intervalos consecutivos cuja diferença é superior a 50ms), LF e HF (valores absolutos da potência do espectro na baixa e alta frequências, em ms\textsuperscript{2}) não são utilizados nas análises, por serem diretamente correlacionados, respectivamente com o MRRI, PNN50, LFNU e HFNU, das quais derivam ou são derivados, sendo, portanto, redundantes. 
             
-            \paragraph{} Além disso, a VLF (potência do espectro na faixa de 0.0003Hz a 0.04Hz) também é armazenada, mas não utilizada nas análises porque seu período (25s a 333s) elevado inviabiliza a presença de ciclos suficientes em dados de ultra-curta duração, sendo recomendado que não se utilize tal métrica, a não ser em análises de longa duração \cite{TaskForceoftheEuropeanSocietyofCardiologytheNorthAmericanSocietyofPacing1996HeartUse}.
+            \paragraph{} Além disso, a VLF (potência do espectro na faixa de 0.003Hz a 0.04Hz) também é armazenada, mas não utilizada nas análises porque seu período (25s a 333s) elevado inviabiliza a presença de ciclos suficientes em dados de ultra-curta duração, sendo recomendado que não se utilize tal métrica, a não ser em análises de longa duração \cite{TaskForceoftheEuropeanSocietyofCardiologytheNorthAmericanSocietyofPacing1996HeartUse}.
         
-           \paragraph{} Cada execução completa do pipeline, desde a remoção de artefatos até o cálculo das métricas, leva à geração de um \textit{dataset} para análise. A nomenclatura do \textit{dataset} gerado indica os parâmetros escolhidos para \textit{crop} e duração do fragmento. Para a geração desse \textit{dataset} são excluídas as listas de intervalos e mantidas apenas as métricas agregadas e dados do fragmento e de sua sessão relacionada. Cada linha, portanto, tem o seguinte conteúdo:
+           \paragraph{} Cada execução completa do pipeline, desde a remoção de artefatos até o cálculo das métricas, leva à geração de um \textit{dataset} para análise. A nomenclatura do \textit{dataset} gerado indica os parâmetros escolhidos para \textit{crop} e duração do fragmento. Para a geração desse \textit{dataset}, são excluídas as listas de intervalos e mantidas apenas as métricas agregadas e dados do fragmento e de sua sessão relacionada. Cada linha, portanto, tem o seguinte conteúdo:
                 \begin{itemize}
                     \item id do usuário;
                     \item descrição da atividade;
@@ -177,7 +177,7 @@
         \label{anaexp}
             
             \paragraph{} Antes de iniciar a classificação, uma análise exploratória nos permite avaliar a viabilidade da ideia, assim como detectar potenciais problemas ou erros nos dados. 
-            \paragraph{}As figuras ~\ref{sess_box_ronald} e ~\ref{sess_box_all} mostram como se comportam a distribuição de algumas métricas selecionadas através de todas as sessões gravadas. Na figura ~\ref{sess_box_ronald}, foi selecionado um indivíduo para demonstrar como as métricas variam entre atividades. É possível observar que atividades como exercício e sono se destacam bastante das outras, uma indicação de que são atividades facilmente identificáveis. Já a figura ~\ref{sess_box_ronald} representa uma agregação de todas as atividades, com exceção dessas três, por indivíduo, ressaltando que, apesar de haver semelhança, há um padrão levemente distinto para cada um deles, o que indica que uma classificação intra-usuário deva funcionar melhor do que uma inter-usuário. Apesar das figuras representarem apenas um subconjunto das métricas, as outras se comportam de maneira parecida.
+            \paragraph{}As figuras ~\ref{sess_box_ronald} e ~\ref{sess_box_all} mostram como se comportam a distribuição de algumas métricas selecionadas através de todas as sessões gravadas. Na figura ~\ref{sess_box_ronald}, foi selecionado um indivíduo para demonstrar como as métricas variam entre atividades. É possível observar que atividades como exercício e sono se destacam bastante das outras, uma indicação de que são atividades facilmente identificáveis. Já a figura ~\ref{sess_box_all} representa uma agregação de todas as atividades, com exceção dessas três, por indivíduo, ressaltando que, apesar de haver semelhança, há um padrão levemente distinto para cada um deles. Isso indica que uma classificação intra-usuário deva funcionar melhor do que uma inter-usuário. Apesar das figuras representarem apenas um subconjunto das métricas, as outras se comportam de maneira parecida.
       
       
             \begin{figure}[h!]
@@ -206,9 +206,9 @@
 
         \subsection{Preparação do dado}
         
-            \paragraph{} No intuito de definir a configuração ótima dos parâmetros de duração do fragmento e \textit{crop} inicial, executamos o pipeline repetidamente, variando os valores desses dois parâmetros gerando um \textit{dataset} para cada par de parâmetros. Os valores testados foram (em segundos): 30, 60, 90 para o \textit{crop} e 60, 120, 180, 240, 300, 420, 600 para a duração.
+            \paragraph{} No intuito de definir a configuração ótima dos parâmetros de duração do fragmento e \textit{crop} inicial, executamos o pipeline repetidamente, variando os valores desses dois parâmetros e gerando um \textit{dataset} para cada par de parâmetros. Os valores testados foram (em segundos): 30, 60, 90 para o \textit{crop} e 60, 120, 180, 240, 300, 420, 600 para a duração.
         
-            \paragraph{} Apesar do já termos executado a maior parte do tratamento necessário ao dado no pipeline de processamento, ainda foi necessária a normalização dos valores de cada \textit{feature}, realizada somente na fase do classificador. Para isso, cada \textit{dataset} é separado por indivíduo e, para cada um, é aplicada uma função que transforma cada uma das métricas em uma distribuição com média 0 e desvio-padrão 1. Isso impede que os classificadores atribuam um peso desproporcionalmente alto para \textit{features} que tenham alta variância.
+            \paragraph{} Apesar de já termos executado a maior parte do tratamento necessário ao dado no pipeline de processamento, ainda foi necessária a normalização dos valores de cada \textit{feature}, realizada somente na fase do classificador. Para isso, cada \textit{dataset} é separado por indivíduo e, para cada um, é aplicada uma função que transforma cada uma das métricas em uma distribuição com média 0 e desvio-padrão 1. Isso impede que os classificadores atribuam um peso desproporcionalmente alto para \textit{features} que tenham alta variância.
             
             \paragraph{} Por fim, os datasets resultantes foram divididos em exemplos para treino e teste em uma proporção de 4:1. 
             
@@ -238,9 +238,7 @@
         
         \subsection{Análise da classificação}
         
-            \paragraph{} Nessa etapa de seleção de modelo, apresentamos o resultado apenas de um dataset, com fragmentos de comprimento 600s e \textit{crop} de 30s. Os resultados para outras configurações de fragmentação foram semelhantes. A Figura ~\ref{svmvsrf} mostra, para cada classe, a comparação do resultado da melhor parametrização do SVM contra o \textit{Random Forest}. É possível observar que o \textit{ Random Forest} apresentou performance melhor que o SVM para todas as classes e, por isso, será utilizado nas próximas análises. 
-            
-            \paragraph{} Além disso, observa-se nessa figura, também, que a classificação de exercícios, movimento e sono são melhores que as das outras atividades, como havíamos previsto na análise exploratória na seção ~\ref{anaexp}, visto que suas características são mais distintas. A fim de avaliar com maior detalhe, a Figura ~\ref{multiclass_prf}, mostra a precisão e o recall para cada classe usando somente o algorimto Random Forest e apenas para um indivíduo. Nesse caso, podemos observar que o score da classificação de exercício e sono são superiores a 0.8 , e o de movimento se aproxima de 0.7, enquanto a maior parte das outras classes fica abaixo de 0.5
+            \paragraph{} Nessa etapa, apresentamos o resultado apenas de um dataset, com fragmentos de comprimento 600s e \textit{crop} de 30s. Os resultados para outras configurações de fragmentação foram semelhantes. A Figura ~\ref{svmvsrf} mostra, para cada classe, a comparação do resultado da melhor parametrização do SVM contra o \textit{Random Forest}. É possível observar que o \textit{ Random Forest} apresentou performance melhor que o SVM para todas as classes e, por isso, será utilizado nas próximas análises. 
             
             \begin{figure}[h!]
             	\centering
@@ -249,6 +247,8 @@
                 \label{svmvsrf}
             \end{figure}
             
+            \paragraph{} Além disso, observa-se nessa figura, também, que a classificação de exercícios, movimento e sono são melhores que as das outras atividades, como havíamos previsto na análise exploratória na seção ~\ref{anaexp}, visto que suas características são mais distintas. A fim de avaliar com maior detalhe, a Figura ~\ref{multiclass_prf} mostra a precisão e o recall para cada classe usando somente o algoritmo Random Forest e apenas para um indivíduo. Nesse caso, podemos observar que o score da classificação de exercício e sono são superiores a 0.8, e o de movimento se aproxima de 0.7, enquanto a maior parte das outras classes fica abaixo de 0.5
+            
             \begin{figure}[h!]
             	\centering
             	\includegraphics[width=0.9\textwidth]{classif/class_multi_activity_prf.png}
@@ -256,18 +256,18 @@
                 \label{multiclass_prf}
             \end{figure}
             
-            \paragraph{} Por causa desses resultados, optamos por agrupar as categorias restantes em supercategorias semelhantes, de tal forma que ficassem mais distintas. Após algumas tentativas, obtivemos o resultado da Figura ~\ref{group2} agrupando as seguintes categorias:
+            \paragraph{} Por causa desses resultados, optamos por agrupar as categorias restantes em supercategorias semelhantes, de tal forma que ficassem mais distintas umas das outras. Após algumas tentativas, obtivemos o resultado da Figura ~\ref{group2} agrupando as seguintes categorias:
             \begin{itemize} 
                 \item Na supercategoria "stress"
                 \begin{itemize} 
-                    \item focused-passive (atividades de leitura, assistindo aula);
+                    \item focused-passive (leitura ou participação como espectador em aula, palestra ou reunião);
                     \item focused-active (atividades de trabalho ativo, como digitação ou desenho);
                     \item rest-active (atividades ativas como conversar);
                     \item eat (comer).
                 \end{itemize}
                 \item Na supercategoria "relax"
                 \begin{itemize} 
-                    \item rest-passive (atividades passivas de descanso ou espera em filas);
+                    \item rest-passive (atividades passivas de descanso ou espera);
                     \item leisure (atividades de lazer).
                 \end{itemize}
             \end{itemize}
@@ -279,24 +279,26 @@
                 \label{group2}
             \end{figure}
             
-            \paragraph{} Esse resultado, além de melhorar a classificação da categoria de movimento, teve uma classificação razoável para a supercategoria "stress". No entanto, a supercategoria "relax" continua com classificação abaixo de 0.5, tanto para precisão quanto para recall. 
-            \paragraph{} Acreditamos que isso se deve ao fato de, em alguns casos, as atividades definidas como focadas ou ativas, como leitura ou trabalho, podem ser confundidas entre si ou com as atividades de lazer. Nesse caso, a supercategoria "stress" teve maior nível de acerto que as categorias simples por agrupar as atividades que haviam sido classificadas como trabalho, seja ativo ou passivo, que tinham um grande grau de confusão entre si. Enquanto isso, o baixo desempenho da classificação da supercategoria "relax" pode ser causado, por exemplo, por atividades em que o indivíduo esteja lendo por lazer, ou assistindo TV, poderem ter um nível de foco semelhante ao das atividades de trabalho.
-            \paragraph{} Para testar essa hipótese, planejamos obter mais dados e permitir que o indivíduo passe a registrar, além do tipo de atividade (lazer ou trabalho), o nível de foco ou estresse que ele atribui a essa atividade em particular. Assim, teríamos um número maior de combinações de categorias, porém poderia ser possível remover essa ambiguidade.
+            \paragraph{} Além de melhorar a classificação da categoria de movimento, esse agrupamento teve uma classificação razoável para a supercategoria "stress". No entanto, a supercategoria "relax" continua com classificação abaixo de 0.5, tanto para precisão quanto para recall. 
+            \paragraph{} Acreditamos que isso se deve ao fato de, em alguns casos, as atividades definidas como focadas ou ativas, como leitura ou trabalho, podem ser confundidas entre si ou com as atividades de lazer. Nesse caso, a supercategoria "stress" teve maior desempenho que as categorias simples por agrupar as atividades que haviam sido classificadas como trabalho, seja ativo ou passivo, as quais apresentavam um grande grau de confusão entre si. Enquanto isso, o baixo desempenho da classificação da supercategoria "relax" pode ser causado, por exemplo, porque atividades em que o indivíduo esteja lendo por lazer, ou assistindo TV, podem ter um nível de foco semelhante ao das atividades de trabalho.
+            \paragraph{} Para testar essa hipótese, planejamos obter mais dados, permitindo que o indivíduo passe a registrar, além do tipo de atividade (lazer ou trabalho), o nível de foco ou estresse que ele atribui a essa atividade em particular. Assim, teríamos um número maior de combinações de categorias, porém poderia ser possível remover essa ambiguidade.
             
-            \paragraph{} Por fim, para avaliar o impacto da fragmentação sobre a classificação, comparamos, na Figura ~\ref{class_per_fragment}, o desempenho das mesmas classes apresentadas anteriormente, para variados tamanhos de fragmento. O resultado varia de acordo com a categoria, mas, de maneira geral, o impacto não parece ser relevante o suficiente para indicar uma duração para a fragmentação em detrimento das outras.
-
+            \paragraph{} Por fim, para avaliar o impacto da fragmentação sobre a classificação, comparamos, na Figura ~\ref{class_per_fragment}, o desempenho das mesmas classes apresentadas anteriormente, para variados tamanhos de fragmento.
+            
             \begin{figure}[h!]
             	\centering
             	\includegraphics[width=0.9\textwidth]{classif/class_per_fragment_size.png}
             	\caption{Comparação de desempenho da classificação variando a duração dos fragmentos}
                 \label{class_per_fragment}
             \end{figure}            
+            
+             \paragraph{} O resultado varia de acordo com a categoria, mas, de maneira geral, o impacto não parece ser relevante o suficiente para indicar uma duração para a fragmentação em detrimento das outras.
 
-\chapter{Discussão}
-\label{Dicussion}
-
-    \paragraph{} O pipeline para processamento de dados foi concluído e funciona corretamente, apesar de ainda estar sendo aperfeiçoado para ter mais eficiência.
-
-    \paragraph{} A classificação de atividades apresentou desempenho satisfatório para as atividades de exercício, sono e movimento, porém acreditamos que, acrescentando informações na coleta que nos permitam melhorar a qualidade dos labels de treinamento, podemos obter maior granularidade e melhor desempenho na classificação de outras atividades. Simultaneamente, estamos aperfeiçoando a interface da coleta de dados, para permitir ao usuário visualizar e editar seus dados, possivelmente excluindo atividades que não tenham sido registradas corretamente.
+    \section{Discussão}
+    \label{Dicussion}
     
-    \paragraph{} Além disso, para a IHC, foi desenvolvido um protótipo durante um trabalho de curso de disciplina e realizados alguns testes preliminares com esse protótipo, porém os dados ainda não foram registrados com o pipeline pois ainda temos que avaliar quais métricas serão utilizadas. A simples variação da frequência cardíaca não oferece bons resultados, por ser afetada por variáveis fora do controle do usuário. Por outro lado, variáveis como o RMSSD ou as variáveis do domínio da frequência exigem um número maior de pontos para serem calculadas, gerando um lag na resposta.
+        \paragraph{} Dentro dos objetivos propostos para o trabalho, o pipeline para processamento de dados foi concluído e funciona corretamente, apesar de ainda estar sendo aperfeiçoado para atingir maior eficiência, por exemplo, com a migração para o banco de dados em tempo real.
+    
+        \paragraph{} Já a classificação de atividades apresentou desempenho satisfatório para as atividades de exercício, sono e movimento, porém acreditamos que, acrescentando informações na coleta que nos permitam melhorar a qualidade dos labels de treinamento, podemos obter maior granularidade e melhor desempenho na classificação de outras atividades. Simultaneamente, estamos aperfeiçoando a interface da coleta de dados, para permitir ao usuário visualizar e editar seus dados, possivelmente excluindo atividades que não tenham sido registradas corretamente.
+        
+        \paragraph{} Além disso, para a IHC, foi desenvolvido um protótipo durante um trabalho de curso de disciplina e realizados alguns testes preliminares com esse protótipo, porém os dados ainda não foram registrados com o pipeline pois ainda temos que avaliar quais métricas serão utilizadas. A simples variação da frequência cardíaca não oferece bons resultados, por ser afetada por variáveis fora do controle do usuário. Por outro lado, variáveis como o RMSSD ou as variáveis do domínio da frequência exigem um número maior de pontos para serem calculadas, gerando um lag na resposta. Entretanto, os testes preliminares indicam que há chance de obter sucesso nesse objetivo.
