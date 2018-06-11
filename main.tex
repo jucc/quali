@@ -46,7 +46,7 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 
 \usepackage{subfigure}
 
-\usepackage[backend=biber, style=numeric,]{biblatex}
+\usepackage[backend=biber, style=numeric, url=false]{biblatex}
 
 \addbibresource{mendeley_v2.bib} % The filename of the bibliography
 
@@ -153,6 +153,14 @@ consistentlayout, % Uncomment to change the layout of the declaration, abstract 
 %----------------------------------------------------------------------------------------
 
 \begin{abstract}
+A Variabilidade da Frequência Cardíaca (da sigla em inglês, HRV) é uma medida fisiológica associada ao Sistema Nervoso Autônomo e suas reações a estímulos de estresse no ambiente. Nesse trabalho, investigamos a viabilidade de usá-la como um marcador biológico para identificar atividades diárias. Desenvolvemos um pipeline para extrair e processar o sinal obtido de forma não-invasiva, preparando-o para análise em classificadores. Derivamos um classificador para atividades e propomos métodos de biofeedback para que um indivíduo seja capaz de, voluntariamente, elevar ou reduzir parâmetros em sua própria HRV, o que nos permitiria detectar sua intenção utilizando classificador semelhante ao de atividades. Visamos desenvolver, dessa forma, uma interação humano-máquina que pode, em algumas situações, ser utilizada no lugar de métodos baseados em EEG, cujos equipamentos são mais complexos e caros, ou juntamente com esses métodos, para fornecer contexto a eles.
+
+
+\paragraph{}
+\textit{Supervised Classifier of Activities and Commands \\
+        Based on Heart Rate Variability}
+
+\paragraph{}
 Heart Rate Variability (HRV) is a measure of physiological state linked to the autonomous nervous system and its reactions to stress stimuli. In this work, we investigate the feasibility of using it as a biological marker of human activities and intentions. We propose a pipeline to extract and process HRV from the heart rate signal obtained from non-invasive chest straps, preparing its data to run through analysis and classifiers. We then derive one such classifier for human daily activities and propose biofeedback methods for a subject to increase or decrease his HRV, which would allow us detect his intention from the same features of the HRV signal that allowed us to build the classifier, thus developing a human-machine interaction that can, in some cases, be used in place of EEG-based methods, which rely on costly equipment.
 \end{abstract}
 

@@ -66,7 +66,19 @@
     
             \paragraph{} Para que o usuário registrasse a atividade exercida, conforme interface mostrada na figura ~\ref{apptela}, foi desenvolvida, inicialmente, uma lista fixa de categorias de atividades. Caso contrário, o usuário poderia adicionar qualquer tipo de atividade, o que dificultaria ou até impossibilitaria a análise, visto que a tendência é que houvesse poucos exemplos de diversas atividades semelhantes. 
             
-            \paragraph{} Entretanto, como essa lista foi criada preliminarmente para podermos iniciar a coleta, ainda não tínhamos como identificar quais tipos de atividades iríamos, de fato, poder distinguir. Sendo assim, essa lista está em constante modificação, através de um ciclo de \textit{feedback} com o resultado das análises exploratórias e dos classificadores. Conforme mais dados vão sendo adicionados, tentamos detalhar melhor a granularidade da lista, agrupando categorias ou criando novas. Contudo, a categorização das atividades já realizadas pelo usuário anteriormente mantém sua descrição original, e é mapeada para uma nova, se necessário, durante o pipeline.
+            \paragraph{} Entretanto, como essa lista foi criada preliminarmente para podermos iniciar a coleta, ainda não tínhamos como identificar quais tipos de atividades iríamos, de fato, poder distinguir. Sendo assim, essa lista está em constante modificação, através de um ciclo de \textit{feedback} com o resultado das análises exploratórias e dos classificadores. Conforme mais dados vão sendo adicionados, tentamos detalhar melhor a granularidade da lista, agrupando categorias ou criando novas. Contudo, a categorização das atividades já realizadas pelo usuário anteriormente mantém sua descrição original, e é mapeada para uma nova, se necessário, durante o pipeline. As categorias básicas que se encontravam como opção nas análises realizadas a seguir são:
+                \begin{itemize} 
+                    \item exercise (exercício físico de intensidade moderada a alta)
+                    \item movement (movimentação dentro de casa ou caminhada leve)
+                    \item household-chores (tarefas domésticas)
+                    \item sleep (sono)
+                    \item focused-passive (leitura por trabalho ou participação como espectador em aula, palestra ou reunião);
+                    \item focused-active (atividades de trabalho ativo, como digitação ou desenho);
+                    \item rest-active (atividades ativas, como conversar);
+                    \item rest-passive (atividades passivas, como espera em filas ou transporte público);
+                    \item eat (comer).
+                    \item leisure (atividades de lazer, como assistir TV, cinema ou leitura relaxante).
+                \end{itemize}
             
             \paragraph{} Outros fatores influenciam as medições de HRV, tais como o consumo de cafeína ou álcool, a postura, a alimentação, o período do dia e alterações de humor. A postura já está sendo registrada no aplicativo e pretendemos incluir um campo de observações para poder registrar os outros fatores, mesmo que no formato de texto não estruturado, para que sejam disponibilizados para outros tipos de análise que possam fazer uso do aplicativo e do pipeline.
             
@@ -128,6 +140,7 @@
             \paragraph{} Nesse passo do \textit{pipeline}, também é realizado o mapeamento de categorias de atividades que deixaram de ser utilizadas, conforme o ciclo de \textit{feedback} descrito na seção ~\ref{categories}, para que todas as atividades registradas estejam padronizadas para a entrada de treinamento dos classificadores. 
             
             \paragraph{} Uma das estratégias que adotamos é a de gerar múltiplas classes agregando categorias de em diferentes hierarquias para compará-las. Dessa forma, é possível selecionar uma lista de atividades disponíveis para incluir em uma supercategoria e incluir no dataset uma coluna com os labels de cada hierarquia. Além disso, incluímos também colunas para cada supercategoria de cada hierarquia, onde os valores são binários (o exemplo pertence ou não à categoria), para que possam ser testados tanto algoritmos de classificação binária quanto generalizações para múltiplas classes.
+            
             
         \subsection{Cálculo das métricas agregadas}
         
@@ -240,50 +253,54 @@
         
             \paragraph{} Nessa etapa, apresentamos o resultado apenas de um dataset, com fragmentos de comprimento 600s e \textit{crop} de 30s. Os resultados para outras configurações de fragmentação foram semelhantes. A Figura ~\ref{svmvsrf} mostra, para cada classe, a comparação do resultado da melhor parametrização do SVM contra o \textit{Random Forest}. É possível observar que o \textit{ Random Forest} apresentou performance melhor que o SVM para todas as classes e, por isso, será utilizado nas próximas análises. 
             
-            \begin{figure}[h!]
+            \begin{figure}[htb!]
             	\centering
             	\includegraphics[width=0.9\textwidth]{classif/class_multi_rf_vs_rbf.png}
             	\caption{Comparação dos algoritmos de classificação com dados de todos os indivíduos, duração fixa em 600s e crop fixo em 30s}
                 \label{svmvsrf}
             \end{figure}
             
-            \paragraph{} Além disso, observa-se nessa figura, também, que a classificação de exercícios, movimento e sono são melhores que as das outras atividades, como havíamos previsto na análise exploratória na seção ~\ref{anaexp}, visto que suas características são mais distintas. A fim de avaliar com maior detalhe, a Figura ~\ref{multiclass_prf} mostra a precisão e o recall para cada classe usando somente o algoritmo Random Forest e apenas para um indivíduo. Nesse caso, podemos observar que o score da classificação de exercício e sono são superiores a 0.8, e o de movimento se aproxima de 0.7, enquanto a maior parte das outras classes fica abaixo de 0.5
+            \paragraph{} Além disso, observa-se nessa figura, também, que a classificação de exercícios, movimento e sono são melhores que as das outras atividades, como havíamos previsto na análise exploratória na seção~\ref{anaexp}, visto que suas características são mais distintas. A fim de avaliar com maior detalhe, a Figura~\ref{multiclass_prf} mostra a precisão e o recall para cada classe usando somente o algoritmo Random Forest e apenas para um indivíduo. Nesse caso, podemos observar que o score da classificação de exercício e sono são superiores a 0.8, e o de movimento se aproxima de 0.7, enquanto a maior parte das outras classes fica abaixo de 0.5
             
-            \begin{figure}[h!]
+            \begin{figure}[htb!]
             	\centering
             	\includegraphics[width=0.9\textwidth]{classif/class_multi_activity_prf.png}
             	\caption{Avaliação de precisão, recall e score F1 para a classificação do Random Forest em todas as classes, para um indivíduo, com duração do fragmento de 300s e crop de 30s}
                 \label{multiclass_prf}
             \end{figure}
             
-            \paragraph{} Por causa desses resultados, optamos por agrupar as categorias restantes em supercategorias semelhantes, de tal forma que ficassem mais distintas umas das outras. Após algumas tentativas, obtivemos o resultado da Figura ~\ref{group2} agrupando as seguintes categorias:
+            \paragraph{} Por causa desses resultados, optamos por agrupar as categorias restantes em supercategorias semelhantes, de tal forma que ficassem mais distintas umas das outras. Após algumas tentativas, obtivemos o resultado da Figura~\ref{group2} agrupando as seguintes categorias:
             \begin{itemize} 
-                \item Na supercategoria "stress"
-                \begin{itemize} 
-                    \item focused-passive (leitura ou participação como espectador em aula, palestra ou reunião);
-                    \item focused-active (atividades de trabalho ativo, como digitação ou desenho);
-                    \item rest-active (atividades ativas como conversar);
-                    \item eat (comer).
-                \end{itemize}
-                \item Na supercategoria "relax"
-                \begin{itemize} 
-                    \item rest-passive (atividades passivas de descanso ou espera);
-                    \item leisure (atividades de lazer).
-                \end{itemize}
+                \item Na supercategoria "stress": focused-passive, focused-active, rest-active, eat ;
+                \item Na supercategoria "relax": rest-passive, leisure.
             \end{itemize}
             
-            \begin{figure}[h!]
+            \begin{figure}[htb!]
             	\centering
             	\includegraphics[width=0.9\textwidth]{Figures/classif/class_group2.png}
             	\caption{Avaliação de precisão, recall e score F1 para a classificação do Random Forest nas classes agrupadas, para todos os indivíduos, com duração do fragmento de  300s e crop de 90s}
                 \label{group2}
             \end{figure}
             
-            \paragraph{} Além de melhorar a classificação da categoria de movimento, esse agrupamento teve uma classificação razoável para a supercategoria "stress". No entanto, a supercategoria "relax" continua com classificação abaixo de 0.5, tanto para precisão quanto para recall. 
-            \paragraph{} Acreditamos que isso se deve ao fato de, em alguns casos, as atividades definidas como focadas ou ativas, como leitura ou trabalho, podem ser confundidas entre si ou com as atividades de lazer. Nesse caso, a supercategoria "stress" teve maior desempenho que as categorias simples por agrupar as atividades que haviam sido classificadas como trabalho, seja ativo ou passivo, as quais apresentavam um grande grau de confusão entre si. Enquanto isso, o baixo desempenho da classificação da supercategoria "relax" pode ser causado, por exemplo, porque atividades em que o indivíduo esteja lendo por lazer, ou assistindo TV, podem ter um nível de foco semelhante ao das atividades de trabalho.
-            \paragraph{} Para testar essa hipótese, planejamos obter mais dados, permitindo que o indivíduo passe a registrar, além do tipo de atividade (lazer ou trabalho), o nível de foco ou estresse que ele atribui a essa atividade em particular. Assim, teríamos um número maior de combinações de categorias, porém poderia ser possível remover essa ambiguidade.
+            \paragraph{} Além de melhorar a classificação da categoria de movimento, esse agrupamento teve uma classificação razoável para a supercategoria "stress". No entanto, a supercategoria "relax" continua com classificação abaixo de 0.5, tanto em precisão quanto em recall. 
             
-            \paragraph{} Por fim, para avaliar o impacto da fragmentação sobre a classificação, comparamos, na Figura ~\ref{class_per_fragment}, o desempenho das mesmas classes apresentadas anteriormente, para variados tamanhos de fragmento.
+            \paragraph{} Em seguida, agrupamos ainda mais os dados, incluindo todas as atividades,  com exceção de sono, movimento e exercício em uma única supercategoria, "parado". A Figura~\ref{class_g3} mostra que o o classificador teve performance consideravelmente melhor, atingindo valores de até 0.99 para alguns indivíduos. Similarmente, a Figura~\ref{class_posture} representa a classificação sobre as posturas possíveis do indivíduo - "Deitado", "Sentado"  e "De pé", e atinge performance próxima a essa. Isso também reforça a ideia de que esse nível de categorização pode ser atingido mais facilmente, visto que as posturas têm relação direta com essas três supercategorias.
+           
+            \begin{figure}[h!]
+            	\centering
+            	\includegraphics[width=0.9\textwidth]{Figures/classif/class_main3_per_user.png}
+            	\caption{Comparação da classificação por indivíduo para as três superclasses "Movimento", "Sono" e "Parado". O traço "inter" corresponde à aplicação do classificador sobre os dados de todos os indivíduos combinados.}
+                \label{class_g3}
+            \end{figure} 
+            
+            \begin{figure}[h!]
+            	\centering
+            	\includegraphics[width=0.9\textwidth]{Figures/classif/class_posture_per_user.png}
+            	\caption{Comparação da classificação por indivíduo para as três posturas, respectivamente, "Deitado", "Sentado"  e "De pé". O traço "inter" corresponde à aplicação do classificador sobre os dados de todos os indivíduos combinados.}
+                \label{class_posture}
+            \end{figure} 
+            
+            \paragraph{} Por fim, para avaliar o impacto da fragmentação sobre a classificação, comparamos, na Figura~\ref{class_per_fragment}, o desempenho das mesmas classes apresentadas anteriormente, para variados tamanhos de fragmento. O resultado varia de acordo com a categoria, mas, de maneira geral, o impacto não parece ser relevante o suficiente para indicar uma duração para a fragmentação em detrimento das outras.
             
             \begin{figure}[h!]
             	\centering
@@ -292,13 +309,21 @@
                 \label{class_per_fragment}
             \end{figure}            
             
-             \paragraph{} O resultado varia de acordo com a categoria, mas, de maneira geral, o impacto não parece ser relevante o suficiente para indicar uma duração para a fragmentação em detrimento das outras.
+
 
     \section{Discussão}
     \label{Dicussion}
     
         \paragraph{} Dentro dos objetivos propostos para o trabalho, o pipeline para processamento de dados foi concluído e funciona corretamente, apesar de ainda estar sendo aperfeiçoado para atingir maior eficiência, por exemplo, com a migração para o banco de dados em tempo real.
     
-        \paragraph{} Já a classificação de atividades apresentou desempenho satisfatório para as atividades de exercício, sono e movimento, porém acreditamos que, acrescentando informações na coleta que nos permitam melhorar a qualidade dos labels de treinamento, podemos obter maior granularidade e melhor desempenho na classificação de outras atividades. Simultaneamente, estamos aperfeiçoando a interface da coleta de dados, para permitir ao usuário visualizar e editar seus dados, possivelmente excluindo atividades que não tenham sido registradas corretamente.
+        \paragraph{} Já a classificação de atividades apresentou desempenho satisfatório para classificar se o indivíduo está se movendo, parado ou dormindo. No entanto, para as atividades propostas em maior nível de granularidade, o desempenho foi baixo.
         
-        \paragraph{} Além disso, para a IHC, foi desenvolvido um protótipo durante um trabalho de curso de disciplina e realizados alguns testes preliminares com esse protótipo, porém os dados ainda não foram registrados com o pipeline pois ainda temos que avaliar quais métricas serão utilizadas. A simples variação da frequência cardíaca não oferece bons resultados, por ser afetada por variáveis fora do controle do usuário. Por outro lado, variáveis como o RMSSD ou as variáveis do domínio da frequência exigem um número maior de pontos para serem calculadas, gerando um lag na resposta. Entretanto, os testes preliminares indicam que há chance de obter sucesso nesse objetivo.
+         \paragraph{} Acreditamos que isso se deve ao fato de, em alguns casos, as atividades definidas como focadas ou ativas, como leitura ou trabalho, poderem ser confundidas entre si ou com as atividades de lazer.  Conforme os estudos mencionados na Seção~\ref{intro} indicam, o que é medido através do HRV é o grau de estresse e concentração do indivíduo. Como ele é responsável por reportar sua própria atividade, pode não fazer uma avaliação correta do grau dessas variáveis nas tarefas desempenhadas. Além disso, esses níveis podem ser alterados durante uma sessão. Por exemplo, um indivíduo assistindo um filme pode reagir de maneira diferente a trechos mais estressantes ou relaxantes do mesmo, ou, ao assistir uma aula, ter seu grau de concentração variando com o tópico.
+         
+        \paragraph{} Para testar essa hipótese e procurar obter resultados mais precisos, estamos desenvolvendo testes em ambiente controlado, onde o indivíduo não é responsável por informar a tarefa, e, sim, o pesquisador. Os testes previstos têm duração curta e servirão para criar uma classificação base para o indivíduo, a qual pode, \textit{a posteriori}, ser aplicada sobre os dados do monitoramento contínuo para, por exemplo, avaliar o grau de atenção do indivíduo em diferentes momentos de uma leitura ou palestra. 
+        
+        \paragraph{} Para medir atenção e stress, podemos utilizar testes aritméticos, como subtrair um valor fixo a partir de um número arbitrariamente alto, ou, ainda, aplicar o teste de cores de Stroop, utilizado pelos trabalhos mencionados anteriormente para medir estresse. Além disso, monitoramos o indivíduo assistindo vídeos ou lendo textos que causem ou não engajamento, o que pode ser medido através de perguntas simples sobre seu conteúdo. Por fim, cobinamos algumas dessas atividades com a instrução para o indivíduo falar ou comer, de forma a avaliar o impacto dessas variáveis externas sobre a classificação da atividade em si.
+        
+        \paragraph{} Além disso, para a IHC, foi desenvolvido um protótipo durante um trabalho de curso de disciplina e realizamos alguns testes preliminares com esse protótipo, porém os dados não foram registrados no pipeline, visto que ainda é necessário avaliar quais métricas serão utilizadas. A simples variação da frequência cardíaca não oferece bons resultados, por ser mais afetada por variáveis fora do controle do usuário. Por outro lado, variáveis como o RMSSD ou as variáveis do domínio da frequência exigem um número maior de pontos para serem calculadas, gerando um lag na resposta. 
+        
+        \paragraph{} Uma perspectiva é a de utilizar o próprio resultado das atividades classificadas para o treinamento do indivíduo. Dessa forma, por exemplo, a interface pode ser controlada pelo nível de concentração medido do usuário - ao tentar se concentrar, por exemplo, decrementando um número em intervalos fixos, ele enviará um comando, enquanto ao tentar relaxar, observando sua respiração, o comando enviado será outro.
